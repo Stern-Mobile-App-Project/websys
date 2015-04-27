@@ -1,5 +1,5 @@
-var Latitude
-var Longtitude
+var Latitude;
+var Longtitude;
 
 function getLocation()
   {
@@ -50,13 +50,7 @@ $(document).ready(function() {
       singleItem:true,
       mouseDrag: false,
       transitionStyle : "goDown"
- 
-      // "singleItem:true" is a shortcut for:
-      // items : 1, 
-      // itemsDesktop : false,
-      // itemsDesktopSmall : false,
-      // itemsTablet: false,
-      // itemsMobile : false 
+
   });
 
     $('.more-jobs a').click(function(e){
@@ -77,16 +71,21 @@ $(document).ready(function() {
 	 $("#searchbtn").click(function () { 
 	 	$("table#mytable tr").remove();
 		restinput = $("#restinput").val();
-		getLocation();
-		$.getJSON("http://websys3.stern.nyu.edu/websysS15GB/websysS15GB6/test2/version1/class.MAP.php",{ query:restinput, lat:Latitude,lon:Longtitude },function(data) {
+		//getLocation();
+		$.getJSON("http://websys3.stern.nyu.edu/websysS15GB/websysS15GB6/test2/version1/class.MAP.php",{ query:restinput, usr_Lati :Latitude,usr_Lng:Longtitude },function(data) {
 			$.each(data,function(index,value) {
 	   			$("#mytable").append('<tr class="odd wow fadeInUp" data-wow-delay="1s">'+
 				                     "<td><p>"+value.R_ID+"</p></td><td><p>"+value.Distance+"</p></td>"+
-									   '<td class="tbl-apply"><a href="#">View</a></td></tr>'); 
+									   '<td class="tbl-apply"><button onclick="detail()">View</button></td></tr>'); 
 			});
 		});
 	 });
-	 
+
+	 function detail() {
+      var tbl = document.getElementById("mytable");
+      if(tbl) tbl.parentNode.removeChild(tbl);
+  }
+
 	 $("table#mytable td a").click(function () {
 		 $("table#mytable tr").remove();
 	 });
