@@ -1,5 +1,6 @@
 var Latitude;
 var Longtitude;
+var rid_array = [];
 
 function getLocation()
   {
@@ -14,7 +15,7 @@ function getLocation()
 function showPosition(position)
   {
     Latitude = position.coords.latitude;
-    Longitude = position.coords.longitude;
+    Longtitude = position.coords.longitude;
   }
 
 $(window).load(function() { // makes sure the whole site is loaded
@@ -62,6 +63,8 @@ $(document).ready(function() {
       } else {
         $this.text('View more results');
       }
+//	  $("#mytable").show()
+//	  $("#reviewtable").hide()
     });
 
     $('.more-jobs a').click(function(){
@@ -71,25 +74,77 @@ $(document).ready(function() {
 	 $("#searchbtn").click(function () { 
 	 	$("table#mytable tr").remove();
 		restinput = $("#restinput").val();
-		//getLocation();
-		$.getJSON("http://websys3.stern.nyu.edu/websysS15GB/websysS15GB6/test2/version1/class.MAP.php",{ query:restinput, usr_Lati :Latitude,usr_Lng:Longtitude },function(data) {
+		getLocation();
+		$("#mytable").append('<tr class="odd wow fadeInUp">'+
+																  '<td><p>Restaurant Name</p></td>'+
+			                                                 '<td><p>Rating</p></td>'+
+															      '<td><p>Review count</p></td></tr>');
+		$.getJSON("http://websys3.stern.nyu.edu/websysS15GB/websysS15GB6/release/backend/class.MAP.php",{ query:restinput,usr_Lati:Latitude, usr_Lng:Longtitude },function(data) {
 			$.each(data,function(index,value) {
-	   			$("#mytable").append('<tr class="odd wow fadeInUp" data-wow-delay="1s">'+
-				                     "<td><p>"+value.R_ID+"</p></td><td><p>"+value.Distance+"</p></td>"+
-									   '<td class="tbl-apply"><button onclick="detail()">View</button></td></tr>'); 
+	   			$("#mytable").append('<tr class="odd wow fadeInUp">'+
+				                     "<td><p>"+value.Name+"</p></td>"+
+									   "<td><p>"+value.Star+"</p></td>"+
+									   "<td><p>"+value.R_Count+"</p></td>"+
+									   '<td class="tbl-apply"><button class="nav-button">View</button></td></tr>'); 
+				rid_array[index] = value.R_ID;
 			});
 		});
 	 });
 
-	 function detail() {
-      var tbl = document.getElementById("mytable");
-      if(tbl) tbl.parentNode.removeChild(tbl);
-  }
+	$("table#mytable").on('click','button.nav-button',function( event ) {
+//	$("#mytable td.tbl-apply").click(function () {
+	    $("table#reviewtable tr").remove();
+//		$("#mytable").hide()
+		var rowindex = $(this).closest('tr').index();
+//		$(this).closest('tr').after('<tr class="even wow fadeInUp" data-wow-delay="1.1s">'+
+//													  '<td><p>dish</p></td>'+
+//													  '<td><p>positive</p></td>'+
+//													  '<td><p>negative</p></td>'+
+//													  '</tr>');
+//    	console.debug('rowindex', rowindex);
+		//var r=$("table#mytable").length;
+		var resid = rid_array[rowindex-1];
+		var html = '<tr class="even wow fadeInUp" data-wow-delay="1.1s">'+
+													  '<td><p>value.Dish1+</p></td>'+
+													  '<td><p>value.Pos1</p></td>'+
+													  '<td><p>value.Neg1</p></td>'+
+													  '</tr>';
+		$("#reviewtable").append('<tr class="even wow fadeInUp">'+
+																  '<td><p>Dish Name</p></td>'+
+			                                                 '<td><p>Positive Reviews</p></td>'+
+															      '<td><p>Negative Reviews</p></td></tr>');
+		$.getJSON("http://websys3.stern.nyu.edu/websysS15GB/websysS15GB6/release/backend/class.R_DETAIL.php",{ R_ID:resid },function(data) {
+			$.each(data,function(index,value) {
+				//htmlrow = '<tr class="even wow fadeInUp" data-wow-delay="1.1s">'+
+				$("#reviewtable").append('<tr class="even wow fadeInUp" data-wow-delay="1.1s">'+				
+													  '<td><p>'+value.Dish+'</p></td>'+
+													  '<td><p>'+value.Pos+'</p></td>'+
+													  '<td><p>'+value.Neg+'</p></td>'+
+													  '</tr>');
+//				html.concat(htmlrow);
+			});
+//			$(this).closest('tr').after(html);
+		
+		});
+//		$(this).closest('tr').after(html);
+	});
+	
+	$("#restinput").keyup(function(event){
+		if(event.keyCode == 13){
+			$("#searchbtn").click();
+    	}
+	});
+	
+});												  
+//	 function detail() {
+ //     var tbl = document.getElementById("mytable");
+  //    if(tbl) tbl.parentNode.removeChild(tbl);
+  //}
 
-	 $("table#mytable td a").click(function () {
-		 $("table#mytable tr").remove();
-	 });
-})
+//	 $("#mytable td.tbl-apply").click(function () {
+//		 $("table#mytable tr").hide();
+//	 });
+
 
      
 // Initializing WOW.JS
